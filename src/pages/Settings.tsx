@@ -65,7 +65,7 @@ const Settings = () => {
                         {IconComponent ? (
                           <IconComponent size={20} className="text-slate-300" />
                         ) : (
-                          <span className="text-lg">{item.icon}</span>
+                          <span className="text-lg">{item.icon as string}</span>
                         )}
                       </div>
                       <div className="flex-1 text-left">
