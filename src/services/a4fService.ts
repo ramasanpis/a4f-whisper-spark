@@ -72,10 +72,11 @@ export class A4FImageService {
     try {
       const client = createA4FClient();
       const testResponse = await client.chat.completions.create({
-        model: "provider-1/gpt-4o",
+        model: "provider-1/gpt-4o-mini",
         messages: [
-          { role: "user", content: "Hello from TypeScript!" },
+          { role: "user", content: "Hello" },
         ],
+        max_tokens: 10,
       });
       
       console.log('A4F connection test:', testResponse.choices[0].message.content);
@@ -93,8 +94,12 @@ export class A4FChatService {
       console.log('Sending chat message with A4F API:', params);
       
       const client = createA4FClient();
+      
+      // Use the correct model format for A4F
+      const modelName = params.model || "provider-1/gpt-4o-mini";
+      
       const response = await client.chat.completions.create({
-        model: params.model || "provider-1/gpt-4o",
+        model: modelName,
         messages: params.messages,
         temperature: params.temperature || 0.7,
         max_tokens: params.max_tokens || 1000,
@@ -105,7 +110,19 @@ export class A4FChatService {
       return response.choices[0]?.message?.content || 'No response received';
     } catch (error) {
       console.error('Error sending chat message with A4F:', error);
-      throw new Error('Failed to send message. Please check your API key and try again.');
+      
+      // More specific error handling
+      if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          throw new Error('Model not found. Please try a different model or check your API key.');
+        } else if (error.message.includes('401')) {
+          throw new Error('Invalid API key. Please check your API key in settings.');
+        } else if (error.message.includes('429')) {
+          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+        }
+      }
+      
+      throw new Error('Failed to send message. Please try again.');
     }
   }
 }

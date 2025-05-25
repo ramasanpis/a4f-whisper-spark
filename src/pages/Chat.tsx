@@ -61,6 +61,7 @@ const Chat = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
@@ -82,12 +83,13 @@ const Chat = () => {
         })),
         {
           role: 'user',
-          content: inputValue
+          content: currentInput
         }
       ];
 
       const response = await a4fChatService.sendMessage({
         messages: chatMessages,
+        model: "provider-1/gpt-4o-mini", // Use correct A4F model format
         temperature: 0.8,
         max_tokens: 500
       });
@@ -102,7 +104,7 @@ const Chat = () => {
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('Chat error:', error);
-      toast.error('Failed to send message. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
       
       // Fallback response
       const fallbackResponse: Message = {

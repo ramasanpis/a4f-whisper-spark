@@ -1,109 +1,37 @@
 
-export interface PromptTemplate {
-  id: string;
-  name: string;
-  category: 'chat' | 'image' | 'creative';
-  template: string;
-  variables: string[];
-  description: string;
-}
-
-export class PromptMasterService {
-  private templates: PromptTemplate[] = [
-    {
-      id: 'friendly-chat',
-      name: 'Friendly Conversation',
-      category: 'chat',
-      template: 'You are a friendly and helpful AI assistant. Your name is {characterName}. {personality} Respond to the user in a warm and engaging way.',
-      variables: ['characterName', 'personality'],
-      description: 'A template for friendly character conversations'
-    },
-    {
-      id: 'creative-image',
-      name: 'Creative Image Generation',
-      category: 'image',
-      template: 'Create a {style} image of {subject}. The scene should be {mood} with {lighting} lighting. Include {details} in the composition.',
-      variables: ['style', 'subject', 'mood', 'lighting', 'details'],
-      description: 'Template for detailed image generation'
-    },
-    {
-      id: 'anime-character',
-      name: 'Anime Character',
-      category: 'image',
-      template: 'anime style, {character_description}, beautiful detailed eyes, {emotion} expression, {outfit}, {background}, high quality, detailed artwork',
-      variables: ['character_description', 'emotion', 'outfit', 'background'],
-      description: 'Template for anime-style character images'
-    },
-    {
-      id: 'storytelling',
-      name: 'Creative Storytelling',
-      category: 'creative',
-      template: 'Tell an engaging story about {topic}. The story should be {tone} and include {elements}. Make it approximately {length} long.',
-      variables: ['topic', 'tone', 'elements', 'length'],
-      description: 'Template for creative storytelling'
-    }
-  ];
-
-  getTemplates(category?: 'chat' | 'image' | 'creative'): PromptTemplate[] {
-    if (category) {
-      return this.templates.filter(template => template.category === category);
-    }
-    return this.templates;
+export class PromptMaster {
+  enhanceChatPrompt(characterName: string, traits: string[], backstory: string): string {
+    return `You are ${characterName}, an AI character with the following personality: ${characterName} is known for ${traits.join(', ')}. Context: ${backstory}. Respond in character, maintaining your personality throughout the conversation. Be engaging, authentic, and true to your character traits.`;
   }
 
-  getTemplate(id: string): PromptTemplate | undefined {
-    return this.templates.find(template => template.id === id);
-  }
-
-  processTemplate(templateId: string, variables: Record<string, string>): string {
-    const template = this.getTemplate(templateId);
-    if (!template) {
-      throw new Error(`Template with id ${templateId} not found`);
-    }
-
-    let processedPrompt = template.template;
+  enhanceImagePrompt(basePrompt: string): string {
+    // Add quality enhancers for better image generation
+    const enhancers = [
+      'high quality',
+      'detailed',
+      'professional',
+      '4k resolution'
+    ];
     
-    // Replace variables in the template
-    Object.entries(variables).forEach(([key, value]) => {
-      const placeholder = `{${key}}`;
-      processedPrompt = processedPrompt.replace(new RegExp(placeholder, 'g'), value);
-    });
-
-    return processedPrompt;
+    return `${basePrompt}, ${enhancers.join(', ')}`;
   }
 
-  addCustomTemplate(template: Omit<PromptTemplate, 'id'>): string {
-    const id = `custom-${Date.now()}`;
-    this.templates.push({
-      ...template,
-      id
-    });
-    return id;
+  getAvailableChatModels(): Array<{id: string, name: string, provider: string}> {
+    return [
+      { id: 'provider-1/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI' },
+      { id: 'provider-1/gpt-4o', name: 'GPT-4o', provider: 'OpenAI' },
+      { id: 'provider-2/claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+      { id: 'provider-3/gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'Google' }
+    ];
   }
 
-  // Enhanced prompts for specific use cases
-  enhanceImagePrompt(basePrompt: string, style: 'realistic' | 'anime' | 'artistic' | 'fantasy' = 'realistic'): string {
-    const styleEnhancements = {
-      realistic: 'photorealistic, high resolution, professional photography, detailed',
-      anime: 'anime style, manga style, cel shading, vibrant colors, detailed artwork',
-      artistic: 'digital art, concept art, artistic style, creative composition',
-      fantasy: 'fantasy art, magical atmosphere, ethereal lighting, mystical elements'
-    };
-
-    return `${basePrompt}, ${styleEnhancements[style]}, masterpiece, best quality`;
-  }
-
-  enhanceChatPrompt(characterName: string, personality: string, context?: string): string {
-    let prompt = `You are ${characterName}, an AI character with the following personality: ${personality}.`;
-    
-    if (context) {
-      prompt += ` Context: ${context}.`;
-    }
-    
-    prompt += ' Respond in character, maintaining your personality throughout the conversation. Be engaging, authentic, and true to your character traits.';
-    
-    return prompt;
+  getAvailableImageModels(): Array<{id: string, name: string, provider: string}> {
+    return [
+      { id: 'provider-2/proteus', name: 'Proteus', provider: 'Kling AI' },
+      { id: 'provider-2/flux-1-schnell', name: 'Flux Schnell', provider: 'Black Forest Labs' },
+      { id: 'provider-1/dall-e-3', name: 'DALL-E 3', provider: 'OpenAI' }
+    ];
   }
 }
 
-export const promptMaster = new PromptMasterService();
+export const promptMaster = new PromptMaster();
