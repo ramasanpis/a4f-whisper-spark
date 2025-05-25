@@ -1,14 +1,21 @@
 
 import OpenAI from 'openai';
 
-const A4F_API_KEY = "ddc-a4f-f4ca021ad1a54bda8ab5ccbf457ddd62";
+// Default API key - will be overridden by user's key from localStorage
+const DEFAULT_A4F_API_KEY = "ddc-a4f-f4ca021ad1a54bda8ab5ccbf457ddd62";
 const A4F_BASE_URL = 'https://api.a4f.co/v1';
 
-const a4fClient = new OpenAI({
-  apiKey: A4F_API_KEY,
-  baseURL: A4F_BASE_URL,
-  dangerouslyAllowBrowser: true
-});
+const getApiKey = (): string => {
+  return localStorage.getItem('apiKey') || DEFAULT_A4F_API_KEY;
+};
+
+const createA4FClient = () => {
+  return new OpenAI({
+    apiKey: getApiKey(),
+    baseURL: A4F_BASE_URL,
+    dangerouslyAllowBrowser: true
+  });
+};
 
 export interface ImageGenerationParams {
   prompt: string;
@@ -40,11 +47,12 @@ export class A4FImageService {
     try {
       console.log('Generating image with A4F API:', params);
       
-      const response = await a4fClient.images.generate({
+      const client = createA4FClient();
+      const response = await client.images.generate({
         model: params.model || "provider-2/proteus",
         prompt: params.prompt,
-        size: params.size || "1024x1024",
-        quality: params.quality || "standard",
+        size: params.size || "1024x1024" as const,
+        quality: params.quality || "standard" as const,
         n: params.n || 1,
       });
 
@@ -56,13 +64,14 @@ export class A4FImageService {
       }));
     } catch (error) {
       console.error('Error generating image with A4F:', error);
-      throw new Error('Failed to generate image. Please try again.');
+      throw new Error('Failed to generate image. Please check your API key and try again.');
     }
   }
 
   async testConnection(): Promise<boolean> {
     try {
-      const testResponse = await a4fClient.chat.completions.create({
+      const client = createA4FClient();
+      const testResponse = await client.chat.completions.create({
         model: "provider-1/gpt-4o",
         messages: [
           { role: "user", content: "Hello from TypeScript!" },
@@ -83,7 +92,8 @@ export class A4FChatService {
     try {
       console.log('Sending chat message with A4F API:', params);
       
-      const response = await a4fClient.chat.completions.create({
+      const client = createA4FClient();
+      const response = await client.chat.completions.create({
         model: params.model || "provider-1/gpt-4o",
         messages: params.messages,
         temperature: params.temperature || 0.7,
@@ -95,7 +105,7 @@ export class A4FChatService {
       return response.choices[0]?.message?.content || 'No response received';
     } catch (error) {
       console.error('Error sending chat message with A4F:', error);
-      throw new Error('Failed to send message. Please try again.');
+      throw new Error('Failed to send message. Please check your API key and try again.');
     }
   }
 }

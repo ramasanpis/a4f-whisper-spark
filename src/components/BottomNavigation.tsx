@@ -1,11 +1,13 @@
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { User, Image, MessageCircle, Settings } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import React from 'react';
 
 const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const navItems = [
     { id: 'home', label: 'Home', icon: '🏠', path: '/' },
@@ -13,6 +15,7 @@ const BottomNavigation = () => {
     { id: 'chat', label: 'Chat', icon: MessageCircle, path: '/chat' },
     { id: 'images', label: 'Images', icon: Image, path: '/images' },
     { id: 'prompts', label: 'Prompts', icon: '✨', path: '/prompts' },
+    { id: 'auth', label: isAuthenticated ? 'Account' : 'Login', icon: User, path: '/auth' },
   ];
 
   return (
