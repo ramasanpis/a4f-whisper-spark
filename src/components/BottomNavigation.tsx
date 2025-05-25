@@ -1,6 +1,6 @@
 
 import { useLocation, useNavigate } from 'react-router-dom';
-import { User, Settings } from 'lucide-react';
+import { User, Image } from 'lucide-react';
 import React from 'react';
 
 const BottomNavigation = () => {
@@ -11,6 +11,7 @@ const BottomNavigation = () => {
     { id: 'home', label: 'Home', icon: '🏠', path: '/' },
     { id: 'characters', label: 'Characters', icon: '👥', path: '/characters' },
     { id: 'chat', label: 'Chat', icon: '💬', path: '/chat' },
+    { id: 'images', label: 'Images', icon: Image, path: '/images' },
     { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
   ];
 

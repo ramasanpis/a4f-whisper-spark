@@ -11,6 +11,7 @@ import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Customize from "./pages/Customize";
+import ImageGeneration from "./pages/ImageGeneration";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/customize" element={<Customize />} />
+          <Route path="/images" element={<ImageGeneration />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
