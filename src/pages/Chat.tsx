@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { characters } from '../data/characters';
 import { Message } from '../types/character';
+import { a4fChatService, ChatMessage } from '../services/a4fService';
+import { promptMaster } from '../services/promptMaster';
+import { toast } from 'sonner';
 
 const Chat = () => {
   const { characterId } = useParams<{ characterId: string }>();
@@ -61,26 +64,57 @@ const Chat = () => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const responses = [
-        "That's really interesting! Tell me more about that.",
-        "I love hearing about your thoughts and experiences.",
-        "Oh, I love so many things! I enjoy exploring new places, reading fantasy novels, and watching anime. Sometimes, I even try my hand at drawing. What about you? What do you enjoy?",
-        "That sounds wonderful! I'd love to learn more about your interests.",
-        "You always have such fascinating perspectives on things!"
+    try {
+      // Prepare chat messages for A4F API
+      const chatMessages: ChatMessage[] = [
+        {
+          role: 'system',
+          content: promptMaster.enhanceChatPrompt(
+            character.name,
+            character.personality.traits,
+            character.personality.backstory
+          )
+        },
+        // Add recent conversation history (last 10 messages)
+        ...messages.slice(-10).map(msg => ({
+          role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+          content: msg.content
+        })),
+        {
+          role: 'user',
+          content: inputValue
+        }
       ];
+
+      const response = await a4fChatService.sendMessage({
+        messages: chatMessages,
+        temperature: 0.8,
+        max_tokens: 500
+      });
 
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: responses[Math.floor(Math.random() * responses.length)],
+        content: response,
         sender: 'character',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      toast.error('Failed to send message. Please try again.');
+      
+      // Fallback response
+      const fallbackResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm sorry, I'm having trouble responding right now. Could you please try again?",
+        sender: 'character',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, fallbackResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -179,6 +213,7 @@ const Chat = () => {
               onKeyPress={handleKeyPress}
               placeholder="Type a message"
               className="w-full bg-slate-800/70 border border-slate-700/50 rounded-2xl py-3 px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
+              disabled={isTyping}
             />
             <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
               🖼️
@@ -186,7 +221,7 @@ const Chat = () => {
           </div>
           <button
             onClick={sendMessage}
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isTyping}
             className="p-3 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl transition-colors duration-200"
           >
             ➤

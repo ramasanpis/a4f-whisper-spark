@@ -23,6 +23,18 @@ export interface GeneratedImage {
   revised_prompt?: string;
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export interface ChatCompletionParams {
+  messages: ChatMessage[];
+  model?: string;
+  temperature?: number;
+  max_tokens?: number;
+}
+
 export class A4FImageService {
   async generateImage(params: ImageGenerationParams): Promise<GeneratedImage[]> {
     try {
@@ -66,4 +78,27 @@ export class A4FImageService {
   }
 }
 
+export class A4FChatService {
+  async sendMessage(params: ChatCompletionParams): Promise<string> {
+    try {
+      console.log('Sending chat message with A4F API:', params);
+      
+      const response = await a4fClient.chat.completions.create({
+        model: params.model || "provider-1/gpt-4o",
+        messages: params.messages,
+        temperature: params.temperature || 0.7,
+        max_tokens: params.max_tokens || 1000,
+      });
+
+      console.log('A4F Chat API response:', response);
+
+      return response.choices[0]?.message?.content || 'No response received';
+    } catch (error) {
+      console.error('Error sending chat message with A4F:', error);
+      throw new Error('Failed to send message. Please try again.');
+    }
+  }
+}
+
 export const a4fImageService = new A4FImageService();
+export const a4fChatService = new A4FChatService();

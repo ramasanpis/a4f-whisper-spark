@@ -1,6 +1,6 @@
 
 import { useLocation, useNavigate } from 'react-router-dom';
-import { User, Image } from 'lucide-react';
+import { User, Image, MessageCircle, Settings } from 'lucide-react';
 import React from 'react';
 
 const BottomNavigation = () => {
@@ -10,16 +10,16 @@ const BottomNavigation = () => {
   const navItems = [
     { id: 'home', label: 'Home', icon: '🏠', path: '/' },
     { id: 'characters', label: 'Characters', icon: '👥', path: '/characters' },
-    { id: 'chat', label: 'Chat', icon: '💬', path: '/chat' },
+    { id: 'chat', label: 'Chat', icon: MessageCircle, path: '/chat' },
     { id: 'images', label: 'Images', icon: Image, path: '/images' },
-    { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
+    { id: 'prompts', label: 'Prompts', icon: '✨', path: '/prompts' },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-700/50">
       <div className="flex items-center justify-around py-2 px-4 max-w-md mx-auto">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || (item.path === '/chat' && location.pathname.startsWith('/chat'));
           const IconComponent = typeof item.icon === 'string' ? null : item.icon;
           
           return (
