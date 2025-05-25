@@ -1,6 +1,7 @@
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { User, Settings } from 'lucide-react';
+import React from 'react';
 
 const BottomNavigation = () => {
   const location = useLocation();
@@ -33,7 +34,7 @@ const BottomNavigation = () => {
               {IconComponent ? (
                 <IconComponent size={20} />
               ) : (
-                <span className="text-lg">{item.icon}</span>
+                <span className="text-lg">{item.icon as string}</span>
               )}
               <span className="text-xs mt-1 font-medium">{item.label}</span>
             </button>

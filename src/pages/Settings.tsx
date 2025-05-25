@@ -1,6 +1,5 @@
-
 import { useNavigate } from 'react-router-dom';
-import { User, Bell, Settings as SettingsIcon, Help } from 'lucide-react';
+import { User, Bell, Settings as SettingsIcon, HelpCircle } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
 
 const Settings = () => {
@@ -25,7 +24,7 @@ const Settings = () => {
     {
       category: 'Help & Support',
       items: [
-        { icon: Help, title: 'FAQ', description: 'Frequently asked questions', action: () => {} },
+        { icon: HelpCircle, title: 'FAQ', description: 'Frequently asked questions', action: () => {} },
         { icon: '📞', title: 'Contact Support', description: 'Contact customer support', action: () => {} },
       ]
     }
